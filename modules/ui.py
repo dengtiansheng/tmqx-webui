@@ -183,12 +183,12 @@ def interrogate_deepbooru(image):
 
 def create_seed_inputs(target_interface):
     with FormRow(elem_id=target_interface + '_seed_row', variant="compact"):
-        seed = (gr.Textbox if cmd_opts.use_textbox_seed else gr.Number)(label='Seed', value=-1, elem_id=target_interface + '_seed')
+        seed = (gr.Textbox if cmd_opts.use_textbox_seed else gr.Number)(label='种子', value=-1, elem_id=target_interface + '_seed')
         seed.style(container=False)
         random_seed = ToolButton(random_symbol, elem_id=target_interface + '_random_seed', label='Random seed')
         reuse_seed = ToolButton(reuse_symbol, elem_id=target_interface + '_reuse_seed', label='Reuse seed')
 
-        seed_checkbox = gr.Checkbox(label='Extra', elem_id=target_interface + '_subseed_show', value=False)
+        seed_checkbox = gr.Checkbox(visible=False,label='Extra', elem_id=target_interface + '_subseed_show', value=False)
 
     # Components to show/hide based on the 'Extra' checkbox
     seed_extras = []
@@ -288,12 +288,12 @@ def create_toprow(is_img2img):
             with gr.Row():
                 with gr.Column(scale=80):
                     with gr.Row():
-                        prompt = gr.Textbox(label="Prompt", elem_id=f"{id_part}_prompt", show_label=False, lines=3, placeholder="Prompt (press Ctrl+Enter or Alt+Enter to generate)")
+                        prompt = gr.Textbox(label="Prompt", elem_id=f"{id_part}_prompt", show_label=False, lines=3, placeholder="提示词Prompt (按 Ctrl+Enter or Alt+Enter 确认生成)")
 
             with gr.Row():
                 with gr.Column(scale=80):
                     with gr.Row():
-                        negative_prompt = gr.Textbox(label="Negative prompt", elem_id=f"{id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative prompt (press Ctrl+Enter or Alt+Enter to generate)")
+                        negative_prompt = gr.Textbox(label="Negative prompt", elem_id=f"{id_part}_neg_prompt", show_label=False, lines=3, placeholder="负向提示词Negative prompt (按 Ctrl+Enter or Alt+Enter 确认生成)")
 
         button_interrogate = None
         button_deepbooru = None
@@ -304,9 +304,9 @@ def create_toprow(is_img2img):
 
         with gr.Column(scale=1, elem_id=f"{id_part}_actions_column"):
             with gr.Row(elem_id=f"{id_part}_generate_box", elem_classes="generate-box"):
-                interrupt = gr.Button('Interrupt', elem_id=f"{id_part}_interrupt", elem_classes="generate-box-interrupt")
-                skip = gr.Button('Skip', elem_id=f"{id_part}_skip", elem_classes="generate-box-skip")
-                submit = gr.Button('Generate', elem_id=f"{id_part}_generate", variant='primary')
+                interrupt = gr.Button('终止', elem_id=f"{id_part}_interrupt", elem_classes="generate-box-interrupt")
+                skip = gr.Button('跳过', elem_id=f"{id_part}_skip", elem_classes="generate-box-skip")
+                submit = gr.Button('生成', elem_id=f"{id_part}_generate", variant='primary')
 
                 skip.click(
                     fn=lambda: shared.state.skip(),
@@ -323,9 +323,9 @@ def create_toprow(is_img2img):
             with gr.Row(elem_id=f"{id_part}_tools"):
                 paste = ToolButton(value=paste_symbol, elem_id="paste")
                 clear_prompt_button = ToolButton(value=clear_prompt_symbol, elem_id=f"{id_part}_clear_prompt")
-                extra_networks_button = ToolButton(value=extra_networks_symbol, elem_id=f"{id_part}_extra_networks")
-                prompt_style_apply = ToolButton(value=apply_style_symbol, elem_id=f"{id_part}_style_apply")
-                save_style = ToolButton(value=save_style_symbol, elem_id=f"{id_part}_style_create")
+                extra_networks_button = ToolButton(visible=False,value=extra_networks_symbol, elem_id=f"{id_part}_extra_networks")
+                prompt_style_apply = ToolButton(visible=False,value=apply_style_symbol, elem_id=f"{id_part}_style_apply")
+                save_style = ToolButton(visible=False,value=save_style_symbol, elem_id=f"{id_part}_style_create")
                 restore_progress_button = ToolButton(value=restore_progress_symbol, elem_id=f"{id_part}_restore_progress", visible=False)
 
                 token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{id_part}_token_counter", elem_classes=["token-counter"])
@@ -340,7 +340,7 @@ def create_toprow(is_img2img):
                     outputs=[prompt, negative_prompt],
                 )
 
-            with gr.Row(elem_id=f"{id_part}_styles_row"):
+            with gr.Row(elem_id=f"{id_part}_styles_row",visible=False):
                 prompt_styles = gr.Dropdown(label="Styles", elem_id=f"{id_part}_styles", choices=[k for k, v in shared.prompt_styles.styles.items()], value=[], multiselect=True)
                 create_refresh_button(prompt_styles, shared.prompt_styles.reload, lambda: {"choices": [k for k, v in shared.prompt_styles.styles.items()]}, f"refresh_{id_part}_styles")
 
@@ -410,12 +410,12 @@ def create_output_panel(tabname, outdir):
 def create_sampler_and_steps_selection(choices, tabname):
     if opts.samplers_in_dropdown:
         with FormRow(elem_id=f"sampler_selection_{tabname}"):
-            sampler_index = gr.Dropdown(label='Sampling method', elem_id=f"{tabname}_sampling", choices=[x.name for x in choices], value=choices[0].name, type="index")
-            steps = gr.Slider(minimum=1, maximum=150, step=1, elem_id=f"{tabname}_steps", label="Sampling steps", value=20)
+            sampler_index = gr.Dropdown(label='采样方法', elem_id=f"{tabname}_sampling", choices=[x.name for x in choices], value=choices[0].name, type="index")
+            steps = gr.Slider(minimum=1, maximum=150, step=1, elem_id=f"{tabname}_steps", label="采样步数", value=20)
     else:
         with FormGroup(elem_id=f"sampler_selection_{tabname}"):
-            steps = gr.Slider(minimum=1, maximum=150, step=1, elem_id=f"{tabname}_steps", label="Sampling steps", value=20)
-            sampler_index = gr.Radio(label='Sampling method', elem_id=f"{tabname}_sampling", choices=[x.name for x in choices], value=choices[0].name, type="index")
+            steps = gr.Slider(minimum=1, maximum=150, step=1, elem_id=f"{tabname}_steps", label="采样步数", value=20)
+            sampler_index = gr.Radio(label='采样方法', elem_id=f"{tabname}_sampling", choices=[x.name for x in choices], value=choices[0].name, type="index")
 
     return steps, sampler_index
 
@@ -473,11 +473,11 @@ def create_ui():
 
                 #with gr.Row().style(equal_height=False):
                 with FormRow():
-                    simple_btn = gr.Button(value="Simple").style(Color="#ff0000")
-                    advanced_btn = gr.Button(value="Advanced")
+                    simple_btn = gr.Button(value="默认").style(Color="#ff0000")
+                    advanced_btn = gr.Button(value="高级")
 
                 #with gr.Column(variant='compact', elem_id="txt2img_settings"):
-                with gr.Column(variant='compact', elem_id="txt2img_settings",visible=True) as txt2img_settings:
+                with gr.Column(variant='compact', elem_id="txt2img_settings",visible=False) as txt2img_settings:
                     for category in ordered_ui_categories():
                         if category == "sampler":
                             steps, sampler_index = create_sampler_and_steps_selection(samplers, "txt2img")
@@ -485,25 +485,25 @@ def create_ui():
                         elif category == "dimensions":
                             with FormRow():
                                 with gr.Column(elem_id="txt2img_column_size", scale=4):
-                                    width = gr.Slider(minimum=64, maximum=2048, step=8, label="Width", value=512, elem_id="txt2img_width")
-                                    height = gr.Slider(minimum=64, maximum=2048, step=8, label="Height", value=512, elem_id="txt2img_height")
+                                    width = gr.Slider(minimum=64, maximum=2048, step=8, label="宽", value=512, elem_id="txt2img_width")
+                                    height = gr.Slider(minimum=64, maximum=2048, step=8, label="高", value=512, elem_id="txt2img_height")
 
                                 with gr.Column(elem_id="txt2img_dimensions_row", scale=1, elem_classes="dimensions-tools"):
                                     res_switch_btn = ToolButton(value=switch_values_symbol, elem_id="txt2img_res_switch_btn", label="Switch dims")
 
                                 if opts.dimensions_and_batch_together:
                                     with gr.Column(elem_id="txt2img_column_batch"):
-                                        batch_count = gr.Slider(minimum=1, step=1, label='Batch count', value=1, elem_id="txt2img_batch_count")
-                                        batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch size', value=1, elem_id="txt2img_batch_size")
+                                        batch_count = gr.Slider(minimum=1, step=1, label='Batch 数量', value=1, elem_id="txt2img_batch_count")
+                                        batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch 大小', value=1, elem_id="txt2img_batch_size")
 
                         elif category == "cfg":
-                            cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG Scale', value=7.0, elem_id="txt2img_cfg_scale")
+                            cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG 规模', value=7.0, elem_id="txt2img_cfg_scale")
 
                         elif category == "seed":
                             seed, reuse_seed, subseed, reuse_subseed, subseed_strength, seed_resize_from_h, seed_resize_from_w, seed_checkbox = create_seed_inputs('txt2img')
 
                         elif category == "checkboxes":
-                            with FormRow(elem_classes="checkboxes-row", variant="compact"):
+                            with FormRow(elem_classes="checkboxes-row", variant="compact",visible=False):
                                 restore_faces = gr.Checkbox(label='Restore faces', value=False, visible=len(shared.face_restorers) > 1, elem_id="txt2img_restore_faces")
                                 tiling = gr.Checkbox(label='Tiling', value=False, elem_id="txt2img_tiling")
                                 enable_hr = gr.Checkbox(label='Hires. fix', value=False, elem_id="txt2img_enable_hr")
@@ -1655,19 +1655,20 @@ def create_ui():
         )
 
     interfaces = [
-        (txt2img_interface, "txt2img", "txt2img"),
-        (img2img_interface, "img2img", "img2img"),
+        (txt2img_interface, "文生图", "txt2img"),
+       
+    ]
+    ''' (img2img_interface, "img2img", "img2img"),
         (extras_interface, "Extras", "extras"),
         (pnginfo_interface, "PNG Info", "pnginfo"),
         (modelmerger_interface, "Checkpoint Merger", "modelmerger"),
         (train_interface, "Train", "ti"),
-    ]
-
+    '''
     interfaces += script_callbacks.ui_tabs_callback()
-    interfaces += [(settings_interface, "Settings", "settings")]
+    #interfaces += [(settings_interface, "Settings", "settings")]
 
-    extensions_interface = ui_extensions.create_ui()
-    interfaces += [(extensions_interface, "Extensions", "extensions")]
+    #xtensions_interface = ui_extensions.create_ui()
+    #nterfaces += [(extensions_interface, "Extensions", "extensions")]
 
     shared.tab_names = []
     for _interface, label, _ifid in interfaces:
@@ -1691,9 +1692,9 @@ def create_ui():
         if os.path.exists(os.path.join(script_path, "notification.mp3")):
             audio_notification = gr.Audio(interactive=False, value=os.path.join(script_path, "notification.mp3"), elem_id="audio_notification", visible=False)
 
-        footer = shared.html("footer.html")
-        footer = footer.format(versions=versions_html())
-        gr.HTML(footer, elem_id="footer")
+        #footer = shared.html("footer.html")
+        #footer = footer.format(versions=versions_html())
+        #gr.HTML(footer, elem_id="footer")
 
         text_settings = gr.Textbox(elem_id="settings_json", value=lambda: opts.dumpjson(), visible=False)
         settings_submit.click(
